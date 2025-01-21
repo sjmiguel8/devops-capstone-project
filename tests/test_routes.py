@@ -161,3 +161,80 @@ class TestAccountService(TestCase):
         """It should not Read an Account that is not found"""
         resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_an_account(self):
+        """Test reading an account"""
+        # Create a new account
+        account_data = {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "address": "123 Main St",
+            "phone_number": "555-555-5555",
+            "date_joined": "2023-01-01"
+        }
+        response = self.client.post(BASE_URL, json=account_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        account_id = response.get_json()["id"]
+
+        # Read the account
+        response = self.client.get(f"{BASE_URL}/{account_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data["name"], account_data["name"])
+        self.assertEqual(data["email"], account_data["email"])
+        self.assertEqual(data["address"], account_data["address"])
+        self.assertEqual(data["phone_number"], account_data["phone_number"])
+        self.assertEqual(data["date_joined"], account_data["date_joined"])
+
+    def test_update_account(self):
+        """Test updating an account"""
+        # Create a new account
+        account_data = {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "address": "123 Main St",
+            "phone_number": "555-555-5555",
+            "date_joined": "2023-01-01"
+        }
+        response = self.client.post(BASE_URL, json=account_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        account_id = response.get_json()["id"]
+
+        # Update the account
+        updated_data = {
+            "name": "Jane Doe",
+            "email": "jane.doe@example.com",
+            "address": "456 Elm St",
+            "phone_number": "555-555-5556",
+            "date_joined": "2023-01-02"
+        }
+        response = self.client.put(f"{BASE_URL}/{account_id}", json=updated_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data["name"], updated_data["name"])
+        self.assertEqual(data["email"], updated_data["email"])
+        self.assertEqual(data["address"], updated_data["address"])
+        self.assertEqual(data["phone_number"], updated_data["phone_number"])
+        self.assertEqual(data["date_joined"], updated_data["date_joined"])
+
+    def test_delete_account(self):
+        """Test deleting an account"""
+        # Create a new account
+        account_data = {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "address": "123 Main St",
+            "phone_number": "555-555-5555",
+            "date_joined": "2023-01-01"
+        }
+        response = self.client.post(BASE_URL, json=account_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        account_id = response.get_json()["id"]
+
+        # Delete the account
+        response = self.client.delete(f"{BASE_URL}/{account_id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Try to read the deleted account
+        response = self.client.get(f"{BASE_URL}/{account_id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
