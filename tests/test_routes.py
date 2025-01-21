@@ -128,7 +128,9 @@ class TestAccountService(TestCase):
     def test_list_accounts(self):
         """Test listing all accounts"""
         # Create a few accounts
-        AccountFactory.create_batch(3)
+        accounts = AccountFactory.create_batch(3)
+        for account in accounts:
+            account.create()
         db.session.commit()
 
         # Make a request to list accounts
